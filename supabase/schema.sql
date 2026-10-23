@@ -127,9 +127,21 @@ CREATE POLICY "Public full access reward_transactions" ON public.reward_transact
 DROP POLICY IF EXISTS "Public full access profiles" ON public.profiles;
 CREATE POLICY "Public full access profiles" ON public.profiles FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
--- Enable Realtime for listings and profiles tables
-ALTER PUBLICATION supabase_realtime ADD TABLE public.listings;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles;
+-- Enable Realtime for listings and profiles tables safely (prevents duplicate error)
+DO $$
+BEGIN
+  BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.listings;
+  EXCEPTION
+    WHEN duplicate_object THEN NULL;
+  END;
+
+  BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles;
+  EXCEPTION
+    WHEN duplicate_object THEN NULL;
+  END;
+END $$;
 
 -- Auto-sync from auth.users to public.profiles on new signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
