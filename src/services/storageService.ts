@@ -24,6 +24,7 @@ import {
   INITIAL_NOTIFICATIONS,
 } from '../data/seedData';
 import { INITIAL_MATERIALS, INITIAL_ENVIRONMENTAL_FACTORS } from '../data/materials';
+import { supabaseService } from './supabaseService';
 
 const KEYS = {
   ROLE: 'wtr_active_role',
@@ -105,6 +106,11 @@ export const storageService = {
       message: `Listing ${newListing.id} created: ${newListing.title}`,
       link: `/customer/listings/${newListing.id}`,
     });
+
+    // Asynchronously push to Supabase (graceful fallback if offline or table pending)
+    supabaseService.createListing(newListing).catch((err) => {
+      console.info('Supabase listing sync note:', err?.message || err);
+    });
   },
 
   updateListing(updatedListing: WasteListing): void {
@@ -114,12 +120,42 @@ export const storageService = {
       list[index] = updatedListing;
       this.saveListings([...list]);
     }
+
+    // Asynchronously push update to Supabase
+    supabaseService.updateListing(updatedListing).catch((err) => {
+      console.info('Supabase listing update note:', err?.message || err);
+    });
   },
 
   deleteListing(id: string): void {
     const list = this.getListings();
     const filtered = list.filter((l) => l.id !== id);
     this.saveListings(filtered);
+
+    // Asynchronously delete from Supabase
+    supabaseService.deleteListing(id).catch((err) => {
+      console.info('Supabase listing deletion note:', err?.message || err);
+    });
+  },
+
+  async syncWithSupabase(): Promise<boolean> {
+    try {
+      const { data, error } = await supabaseService.getListings();
+      if (!error && data && data.length > 0) {
+        // Merge Supabase listings into local storage
+        const currentLocal = this.getListings();
+        const localMap = new Map(currentLocal.map((item) => [item.id, item]));
+        for (const item of data) {
+          localMap.set(item.id, item);
+        }
+        const merged = Array.from(localMap.values());
+        this.saveListings(merged);
+        return true;
+      }
+    } catch {
+      // ignore
+    }
+    return false;
   },
 
   // Materials

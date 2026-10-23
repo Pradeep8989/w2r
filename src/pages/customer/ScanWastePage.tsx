@@ -11,6 +11,7 @@ import {
   Package,
   Box,
   Layers,
+  FileText,
   ArrowRight,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -26,7 +27,7 @@ export const ScanWastePage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedScenarioKey, setSelectedScenarioKey] = useState<
-    'PLASTIC_BOTTLES' | 'CARDBOARD' | 'MIXED_WASTE' | null
+    'PLASTIC_BOTTLES' | 'PAPER' | 'CARDBOARD' | 'MIXED_WASTE' | null
   >(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -65,7 +66,7 @@ export const ScanWastePage: React.FC = () => {
     }
   };
 
-  const handleSelectSample = (scenarioKey: 'PLASTIC_BOTTLES' | 'CARDBOARD' | 'MIXED_WASTE') => {
+  const handleSelectSample = (scenarioKey: 'PLASTIC_BOTTLES' | 'PAPER' | 'CARDBOARD' | 'MIXED_WASTE') => {
     setSelectedFile(null);
     setErrorMessage(null);
     setSelectedScenarioKey(scenarioKey);
@@ -148,7 +149,8 @@ export const ScanWastePage: React.FC = () => {
           <Sparkles className="w-4 h-4 text-emerald-600" />
           Quick Test: Select Pre-configured Scenario
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {/* Plastic */}
           <button
             type="button"
             onClick={() => handleSelectSample('PLASTIC_BOTTLES')}
@@ -162,11 +164,31 @@ export const ScanWastePage: React.FC = () => {
               <Package className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs font-bold text-slate-800 block">Plastic Bottles (PET)</span>
-              <span className="text-[10px] text-slate-500">94% Confidence &bull; Single-stream</span>
+              <span className="text-xs font-bold text-slate-800 block">Plastic (PET / HDPE)</span>
+              <span className="text-[10px] text-slate-500">95% Conf. &bull; Bottles &amp; Jugs</span>
             </div>
           </button>
 
+          {/* Paper */}
+          <button
+            type="button"
+            onClick={() => handleSelectSample('PAPER')}
+            className={`p-3 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
+              selectedScenarioKey === 'PAPER'
+                ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-400/40'
+                : 'bg-white border-slate-200 hover:border-emerald-300'
+            }`}
+          >
+            <div className="w-9 h-9 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-800 block">Paper &amp; Newsprint</span>
+              <span className="text-[10px] text-slate-500">94% Conf. &bull; Office &amp; Books</span>
+            </div>
+          </button>
+
+          {/* Cardboard */}
           <button
             type="button"
             onClick={() => handleSelectSample('CARDBOARD')}
@@ -181,25 +203,7 @@ export const ScanWastePage: React.FC = () => {
             </div>
             <div>
               <span className="text-xs font-bold text-slate-800 block">Cardboard Packaging</span>
-              <span className="text-[10px] text-slate-500">96% Confidence &bull; Dry fibers</span>
-            </div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleSelectSample('MIXED_WASTE')}
-            className={`p-3 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
-              selectedScenarioKey === 'MIXED_WASTE'
-                ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-400/40'
-                : 'bg-white border-slate-200 hover:border-emerald-300'
-            }`}
-          >
-            <div className="w-9 h-9 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center shrink-0">
-              <Layers className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-slate-800 block">Mixed Household Waste</span>
-              <span className="text-[10px] text-slate-500">Multi-stream separation needed</span>
+              <span className="text-[10px] text-slate-500">96% Conf. &bull; Shipping Boxes</span>
             </div>
           </button>
         </div>

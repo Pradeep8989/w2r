@@ -50,7 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }
 
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-2.5">
-      <div className="flex items-center justify-between gap-3 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between gap-3 max-w-7xl 2xl:max-w-[1440px] mx-auto">
         {/* Left: Mobile Menu Toggle & Brand */}
         <div className="flex items-center gap-3">
           {onToggleSidebar && (

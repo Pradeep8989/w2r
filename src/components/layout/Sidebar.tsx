@@ -16,6 +16,7 @@ import {
   TestTube2,
   TrendingUp,
   BookOpen,
+  X,
 } from 'lucide-react';
 import { storageService } from '../../services/storageService';
 
@@ -30,9 +31,10 @@ interface SidebarNavItem {
 
 interface SidebarProps {
   onCloseMobile?: () => void;
+  isMobileDrawer?: boolean;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile, isMobileDrawer = false }) => {
   const location = useLocation();
   const [activeListingsCount, setActiveListingsCount] = useState(0);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
@@ -106,7 +108,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
   const links = role === 'customer' ? customerLinks : role === 'recycler' ? recyclerLinks : adminLinks;
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200/80 flex flex-col shrink-0 h-[calc(100vh-65px)] sticky top-[65px]">
+    <aside
+      className={`w-64 bg-white border-r border-slate-200/80 flex flex-col shrink-0 ${
+        isMobileDrawer
+          ? 'h-full static w-full'
+          : 'h-[calc(100vh-70px)] sticky top-[70px]'
+      }`}
+    >
       {/* Current Role Subheader */}
       <div className="p-4 border-b border-slate-100 flex items-center justify-between">
         <div>
@@ -117,11 +125,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
             {role === 'customer' ? 'Resident / Customer' : role === 'recycler' ? 'Recycler Partner' : 'System Admin'}
           </span>
         </div>
-        <div
-          className={`w-2.5 h-2.5 rounded-full ${
-            role === 'customer' ? 'bg-emerald-500' : role === 'recycler' ? 'bg-blue-500' : 'bg-purple-500'
-          }`}
-        />
+        <div className="flex items-center gap-2">
+          <div
+            className={`w-2.5 h-2.5 rounded-full ${
+              role === 'customer' ? 'bg-emerald-500' : role === 'recycler' ? 'bg-blue-500' : 'bg-purple-500'
+            }`}
+          />
+          {isMobileDrawer && onCloseMobile && (
+            <button
+              onClick={onCloseMobile}
+              className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg cursor-pointer ml-1"
+              aria-label="Close menu"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Navigation Links */}

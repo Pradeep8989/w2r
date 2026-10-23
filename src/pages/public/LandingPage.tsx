@@ -38,7 +38,7 @@ export const LandingPage: React.FC = () => {
 
       {/* Top Navigation */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 py-3.5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#166534] to-[#22c55e] flex items-center justify-center text-white shadow-sm">
               <Recycle className="w-5 h-5" />
@@ -71,25 +71,24 @@ export const LandingPage: React.FC = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <section className="relative pt-10 pb-14 sm:pt-20 sm:pb-24 overflow-hidden">
+        <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto px-4 sm:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             {/* Left Column: Heading and CTAs */}
             <div className="lg:col-span-7 space-y-6 text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100/80 border border-emerald-200 text-xs font-semibold text-[#166534]">
                 <Sparkles className="w-4 h-4 text-emerald-600" />
-                <span>AI-Assisted Waste Segregation &amp; Material Recovery</span>
+                <span>AI Recovery: Plastics &bull; Paper &bull; Cardboard</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.12]">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.12]">
                 Your waste has value.{' '}
                 <span className="text-[#166534] block sm:inline">We make recovery effortless.</span>
               </h1>
 
-              <p className="text-base sm:text-lg text-slate-600 max-w-2xl leading-relaxed">
-                Identify recyclable materials, find the right recovery route, and connect with
-                collection partners — without the hassle. Designed for busy people who want
-                responsible circular disposal without complex segregation hurdles.
+              <p className="text-sm sm:text-lg text-slate-600 max-w-2xl leading-relaxed">
+                Effortlessly segregate and recover household <strong>plastics</strong>, <strong>paper</strong>, and <strong>cardboard</strong>.
+                Identify material streams, check clean contamination rules, and connect with certified collection partners without sorting fatigue.
               </p>
 
               <div className="flex flex-wrap items-center gap-3.5 pt-2">
@@ -116,7 +115,7 @@ export const LandingPage: React.FC = () => {
                 <p className="text-xs text-slate-600 mb-3">
                   Jump directly into any role to evaluate the end-to-end circular workflow:
                 </p>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <button
                     onClick={() => handleRoleSelect('customer')}
                     className="p-2.5 bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-xl text-left transition-all cursor-pointer group"
@@ -177,7 +176,7 @@ export const LandingPage: React.FC = () => {
 
       {/* Illustrative Demo Impact Statistics Banner */}
       <section className="bg-white border-y border-slate-200/80 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto px-4 sm:px-8">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Platform Demo Telemetry
@@ -212,7 +211,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* 3-Step Explanation: Identify, Connect, Recover */}
-      <section id="how-it-works" className="py-20 max-w-7xl mx-auto px-4 sm:px-8">
+      <section id="how-it-works" className="py-20 max-w-7xl 2xl:max-w-[1440px] mx-auto px-4 sm:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block mb-2">
             The Circular Pipeline
@@ -300,7 +299,7 @@ export const LandingPage: React.FC = () => {
 
       {/* Stakeholder Benefits Section */}
       <section className="py-16 bg-white border-t border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto px-4 sm:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
               Built for every link in the recovery chain
@@ -345,7 +344,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Verified Transparency & Methodology Callout */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-8">
+      <section className="py-16 max-w-7xl 2xl:max-w-[1440px] mx-auto px-4 sm:px-8">
         <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-emerald-900 to-[#166534] text-white shadow-xl relative overflow-hidden">
           <div className="max-w-2xl relative z-10 space-y-4">
             <span className="px-3 py-1 bg-emerald-800/80 text-emerald-200 rounded-full text-xs font-semibold uppercase tracking-wider inline-block">
@@ -376,7 +375,7 @@ export const LandingPage: React.FC = () => {
 
       {/* Footer */}
       <footer className="mt-auto bg-slate-900 text-slate-300 py-12 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto px-4 sm:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div className="md:col-span-2 space-y-3">
               <div className="flex items-center gap-2">
