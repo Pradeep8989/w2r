@@ -33,6 +33,8 @@ import { ClassificationEvaluationPage } from './pages/admin/ClassificationEvalua
 import { BeforeAfterImpactPage } from './pages/admin/BeforeAfterImpactPage';
 import { MethodologyPage } from './pages/admin/MethodologyPage';
 
+import { ProtectedRoute } from './components/layout/ProtectedRoute';
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -49,32 +51,47 @@ export const router = createBrowserRouter([
   {
     element: <AppShell />,
     children: [
-      // Customer Portal
-      { path: '/customer', element: <CustomerDashboard /> },
-      { path: '/customer/scan', element: <ScanWastePage /> },
-      { path: '/customer/analysis', element: <WasteAnalysisPage /> },
-      { path: '/customer/recovery', element: <RecoveryOptionsPage /> },
-      { path: '/customer/listings/new', element: <CreateListingPage /> },
-      { path: '/customer/listings', element: <MyListingsPage /> },
-      { path: '/customer/listings/:id', element: <ListingDetailPage /> },
-      { path: '/customer/collection-points', element: <CollectionPointsPage /> },
-      { path: '/customer/rewards', element: <RewardsPage /> },
-      { path: '/customer/impact', element: <EnvironmentalImpactPage /> },
+      // Customer Portal (Guarded)
+      {
+        element: <ProtectedRoute allowedRole="customer" />,
+        children: [
+          { path: '/customer', element: <CustomerDashboard /> },
+          { path: '/customer/scan', element: <ScanWastePage /> },
+          { path: '/customer/analysis', element: <WasteAnalysisPage /> },
+          { path: '/customer/recovery', element: <RecoveryOptionsPage /> },
+          { path: '/customer/listings/new', element: <CreateListingPage /> },
+          { path: '/customer/listings', element: <MyListingsPage /> },
+          { path: '/customer/listings/:id', element: <ListingDetailPage /> },
+          { path: '/customer/collection-points', element: <CollectionPointsPage /> },
+          { path: '/customer/rewards', element: <RewardsPage /> },
+          { path: '/customer/impact', element: <EnvironmentalImpactPage /> },
+        ],
+      },
 
-      // Recycler Portal
-      { path: '/recycler', element: <RecyclerDashboard /> },
-      { path: '/recycler/requests', element: <IncomingRequestsPage /> },
-      { path: '/recycler/requests/:id', element: <RecyclerListingDetailPage /> },
-      { path: '/recycler/pickups', element: <PickupManagementPage /> },
-      { path: '/recycler/verification/:id', element: <WeightVerificationPage /> },
+      // Recycler Portal (Guarded)
+      {
+        element: <ProtectedRoute allowedRole="recycler" />,
+        children: [
+          { path: '/recycler', element: <RecyclerDashboard /> },
+          { path: '/recycler/requests', element: <IncomingRequestsPage /> },
+          { path: '/recycler/requests/:id', element: <RecyclerListingDetailPage /> },
+          { path: '/recycler/pickups', element: <PickupManagementPage /> },
+          { path: '/recycler/verification/:id', element: <WeightVerificationPage /> },
+        ],
+      },
 
-      // Admin Portal
-      { path: '/admin', element: <AdminOverviewPage /> },
-      { path: '/admin/materials', element: <MaterialPricingPage /> },
-      { path: '/admin/recyclers', element: <RecyclerManagementPage /> },
-      { path: '/admin/evaluation', element: <ClassificationEvaluationPage /> },
-      { path: '/admin/impact', element: <BeforeAfterImpactPage /> },
-      { path: '/admin/methodology', element: <MethodologyPage /> },
+      // Admin Portal (Guarded)
+      {
+        element: <ProtectedRoute allowedRole="admin" />,
+        children: [
+          { path: '/admin', element: <AdminOverviewPage /> },
+          { path: '/admin/materials', element: <MaterialPricingPage /> },
+          { path: '/admin/recyclers', element: <RecyclerManagementPage /> },
+          { path: '/admin/evaluation', element: <ClassificationEvaluationPage /> },
+          { path: '/admin/impact', element: <BeforeAfterImpactPage /> },
+          { path: '/admin/methodology', element: <MethodologyPage /> },
+        ],
+      },
     ],
   },
   {

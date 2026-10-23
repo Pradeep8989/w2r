@@ -188,3 +188,11 @@ export interface ImpactComparisonMetric {
   prototypeDenominator: number;
   description: string;
 }
+
+export interface UserSession {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+}
+

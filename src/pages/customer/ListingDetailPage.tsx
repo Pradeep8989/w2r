@@ -63,9 +63,11 @@ export const ListingDetailPage: React.FC = () => {
     );
   }
 
+  const currentUser = storageService.getCurrentUser();
+
   const handleCancel = () => {
     if (window.confirm('Are you sure you want to cancel this listing?')) {
-      listingService.cancel(listing.id, 'Cancelled by customer', 'Sarah Jenkins');
+      listingService.cancel(listing.id, 'Cancelled by customer', currentUser?.name || 'Customer');
       showToast('Listing marked as cancelled', 'info');
       loadListing();
     }
@@ -77,18 +79,12 @@ export const ListingDetailPage: React.FC = () => {
       status: 'awaiting_recycler',
       label: 'Listing Published',
       timestamp: new Date().toISOString(),
-      actor: 'Sarah Jenkins',
+      actor: currentUser?.name || 'Customer',
       notes: 'Published to certified recycler network.',
     });
     storageService.updateListing(listing);
     showToast('Listing submitted to recyclers!', 'success');
     loadListing();
-  };
-
-  const switchToRecyclerMode = () => {
-    storageService.setCurrentRole('recycler');
-    showToast('Switched to Recycler Mode for demonstration', 'info');
-    navigate(`/recycler/requests/${listing.id}`);
   };
 
   return (
@@ -115,18 +111,9 @@ export const ListingDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Demo Fast-Action Banner for Judges */}
-        {['awaiting_recycler', 'recycler_accepted', 'pickup_scheduled', 'collected'].includes(
-          listing.status
-        ) && (
-          <Button
-            size="sm"
-            variant="accent"
-            leftIcon={<Truck className="w-3.5 h-3.5" />}
-            onClick={switchToRecyclerMode}
-            title="Switch to Recycler view to process next lifecycle stage"
-          >
-            Demo: Process as Recycler &rarr;
+        {listing.status === 'draft' && (
+          <Button size="sm" variant="accent" onClick={handlePublishDraft}>
+            Publish Listing
           </Button>
         )}
       </div>

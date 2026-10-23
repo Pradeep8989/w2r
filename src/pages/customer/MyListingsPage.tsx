@@ -27,14 +27,20 @@ export const MyListingsPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed' | 'draft'>('all');
 
   const loadListings = () => {
-    setListings(storageService.getListings());
+    const user = storageService.getCurrentUser();
+    const all = storageService.getListings();
+    setListings(user?.id ? all.filter((l) => l.customerId === user.id) : all);
   };
 
   useEffect(() => {
     loadListings();
     const handleUpdate = () => loadListings();
     window.addEventListener('wtr_data_changed', handleUpdate);
-    return () => window.removeEventListener('wtr_data_changed', handleUpdate);
+    window.addEventListener('wtr_auth_changed', handleUpdate);
+    return () => {
+      window.removeEventListener('wtr_data_changed', handleUpdate);
+      window.removeEventListener('wtr_auth_changed', handleUpdate);
+    };
   }, []);
 
   const filteredListings = listings.filter((item) => {

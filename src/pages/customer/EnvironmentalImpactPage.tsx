@@ -29,7 +29,8 @@ import {
 } from 'recharts';
 
 export const EnvironmentalImpactPage: React.FC = () => {
-  const impact = impactService.calculateImpact();
+  const currentUser = storageService.getCurrentUser();
+  const impact = impactService.calculateImpact(currentUser?.id);
   const factors = storageService.getEnvironmentalFactors();
 
   const COLORS = ['#166534', '#0284c7', '#b45309', '#475569', '#7c3aed', '#059669'];

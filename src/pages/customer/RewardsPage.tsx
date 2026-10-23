@@ -86,13 +86,18 @@ export const RewardsPage: React.FC = () => {
     },
   ];
 
+  const currentUser = storageService.getCurrentUser();
+  const userName = currentUser?.name || 'You';
+
   const leaderboard = [
-    { rank: 1, name: 'Marcus Vance', locality: 'West Valley', points: 640, streak: '6 wks' },
-    { rank: 2, name: 'Sarah Jenkins (You)', locality: 'Central Metro', points: totalPoints, streak: '3 wks', isUser: true },
-    { rank: 3, name: 'Maya Rodriguez', locality: 'North Suburbs', points: 410, streak: '4 wks' },
-    { rank: 4, name: 'David Chen', locality: 'West Valley', points: 385, streak: '2 wks' },
-    { rank: 5, name: 'Elena Rostova', locality: 'Civic Plaza', points: 290, streak: '3 wks' },
-  ];
+    { rank: 1, name: `${userName} (You)`, locality: 'Your Neighborhood', points: totalPoints, streak: totalPoints > 0 ? 'Active' : 'New', isUser: true },
+    { rank: 2, name: 'Marcus Vance', locality: 'West Valley', points: 640, streak: '6 wks' },
+    { rank: 3, name: 'Elena Rostova', locality: 'Civic Plaza', points: 410, streak: '4 wks' },
+    { rank: 4, name: 'Jordan Hayes', locality: 'North Suburbs', points: 290, streak: '3 wks' },
+    { rank: 5, name: 'Amina Al-Mansoor', locality: 'East Bay', points: 215, streak: '2 wks' },
+  ]
+    .sort((a, b) => b.points - a.points)
+    .map((item, idx) => ({ ...item, rank: idx + 1 }));
 
   return (
     <div className="space-y-6">

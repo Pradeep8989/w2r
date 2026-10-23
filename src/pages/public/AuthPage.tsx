@@ -60,6 +60,17 @@ export const AuthPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const formatNameFromEmail = (emailStr: string): string => {
+    const localPart = emailStr.split('@')[0] || 'User';
+    const clean = localPart.replace(/[0-9._-]+/g, ' ').trim();
+    if (!clean) return 'User';
+    return clean
+      .split(' ')
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -78,12 +89,35 @@ export const AuthPage: React.FC = () => {
     }
 
     setIsLoading(true);
-    // Simulate network latency
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 600));
 
+    let user;
+    if (mode === 'signup') {
+      user = storageService.registerUser({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        role: selectedRole,
+      });
+    } else {
+      const existingUsers = storageService.getRegisteredUsers();
+      const match = existingUsers.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
+      if (match) {
+        user = { ...match, role: selectedRole };
+        storageService.registerUser(user);
+      } else {
+        const derivedName = formatNameFromEmail(email.trim());
+        user = storageService.registerUser({
+          name: derivedName,
+          email: email.trim().toLowerCase(),
+          role: selectedRole,
+        });
+      }
+    }
+
+    storageService.setCurrentUser(user);
     storageService.setCurrentRole(selectedRole);
 
-    // Navigate to the appropriate portal
+    // Navigate strictly to the authenticated role portal
     if (selectedRole === 'customer') navigate('/customer');
     else if (selectedRole === 'recycler') navigate('/recycler');
     else navigate('/admin');

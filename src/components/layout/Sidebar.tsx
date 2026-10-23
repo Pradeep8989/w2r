@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -39,9 +39,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
   const [pointsTotal, setPointsTotal] = useState(0);
 
   const refreshCounts = () => {
+    const user = storageService.getCurrentUser();
     const listings = storageService.getListings();
+    const userListings =
+      user?.role === 'customer' && user.id
+        ? listings.filter((l) => l.customerId === user.id)
+        : listings;
+
     setActiveListingsCount(
-      listings.filter((l) =>
+      userListings.filter((l) =>
         ['awaiting_recycler', 'recycler_accepted', 'pickup_scheduled', 'collected'].includes(l.status)
       ).length
     );
@@ -53,7 +59,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
     refreshCounts();
     const handleStorageChange = () => refreshCounts();
     window.addEventListener('wtr_data_changed', handleStorageChange);
-    return () => window.removeEventListener('wtr_data_changed', handleStorageChange);
+    window.addEventListener('wtr_auth_changed', handleStorageChange);
+    return () => {
+      window.removeEventListener('wtr_data_changed', handleStorageChange);
+      window.removeEventListener('wtr_auth_changed', handleStorageChange);
+    };
   }, []);
 
   const getRole = () => {

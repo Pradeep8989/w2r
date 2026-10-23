@@ -76,10 +76,11 @@ export const WasteAnalysisPage: React.FC = () => {
   }
 
   const handleSaveDraft = () => {
+    const currentUser = storageService.getCurrentUser();
     const draft = listingService.saveDraft({
       title: `${analysis.materials[0]?.categoryName || 'Recyclable Stream'} (${estimatedQuantity} kg)`,
-      customerId: 'usr_sarah',
-      customerName: 'Sarah Jenkins',
+      customerId: currentUser?.id || `usr_${Date.now()}`,
+      customerName: currentUser?.name || 'Resident',
       customerAddress: '42 Pine Crest Ave, Apt 3B',
       locality: 'Central Metro',
       materials: analysis.materials.map((m) => ({

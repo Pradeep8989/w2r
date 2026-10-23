@@ -54,6 +54,9 @@ export const RecyclerDashboard: React.FC = () => {
     0
   );
 
+  const currentUser = storageService.getCurrentUser();
+  const displayName = currentUser?.role === 'recycler' && currentUser?.name ? currentUser.name : activeRecycler?.name;
+
   return (
     <div className="space-y-6">
       {/* Top Partner Context Bar */}
@@ -64,7 +67,7 @@ export const RecyclerDashboard: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-slate-900">{activeRecycler?.name}</h1>
+              <h1 className="text-xl font-bold text-slate-900">{displayName}</h1>
               <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full uppercase">
                 Collection Partner
               </span>
