@@ -156,10 +156,13 @@ BEGIN
     NOW(),
     NOW()
   )
-  ON CONFLICT (id) DO UPDATE SET
+  ON CONFLICT (email) DO UPDATE SET
+    id = EXCLUDED.id,
     last_sign_in_at = NOW(),
-    full_name = EXCLUDED.full_name,
-    role = EXCLUDED.role;
+    full_name = COALESCE(EXCLUDED.full_name, public.profiles.full_name),
+    role = COALESCE(EXCLUDED.role, public.profiles.role);
+  RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
