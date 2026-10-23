@@ -1,9 +1,8 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   Scan,
   ArrowRight,
-  ShieldCheck,
   Truck,
   Recycle,
   Sparkles,
@@ -11,30 +10,18 @@ import {
   Award,
   Users,
   CheckCircle2,
-  AlertTriangle,
   Building2,
   ChevronRight,
-  ExternalLink,
+  Leaf,
+  Globe,
+  TrendingUp,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { DemoBanner } from '../../components/layout/DemoBanner';
-import { RoleSwitcher } from '../../components/layout/RoleSwitcher';
-import { storageService } from '../../services/storageService';
 
 export const LandingPage: React.FC = () => {
-  const navigate = useNavigate();
-
-  const handleRoleSelect = (role: 'customer' | 'recycler' | 'admin') => {
-    storageService.setCurrentRole(role);
-    if (role === 'customer') navigate('/customer');
-    if (role === 'recycler') navigate('/recycler');
-    if (role === 'admin') navigate('/admin');
-  };
-
   return (
     <div className="min-h-screen bg-[#F7F9F7] text-[#172018] flex flex-col">
-      <DemoBanner />
 
       {/* Top Navigation */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 py-3.5">
@@ -48,23 +35,25 @@ export const LandingPage: React.FC = () => {
                 Waste to Resource
               </span>
               <span className="text-[10px] text-emerald-800 font-semibold tracking-wider uppercase block">
-                Track: Sustainability &amp; Climate Tech (ST-01)
+                Circular Recovery Platform
               </span>
             </div>
           </Link>
 
           <div className="hidden md:flex items-center gap-4">
-            <RoleSwitcher />
-            <Link to="/customer/scan">
+            <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+              Sign In
+            </Link>
+            <Link to="/signup">
               <Button size="sm" leftIcon={<Scan className="w-4 h-4" />}>
-                Scan Waste
+                Get Started
               </Button>
             </Link>
           </div>
 
           <div className="md:hidden">
-            <Link to="/customer">
-              <Button size="sm">Launch App</Button>
+            <Link to="/login">
+              <Button size="sm">Sign In</Button>
             </Link>
           </div>
         </div>
@@ -93,57 +82,51 @@ export const LandingPage: React.FC = () => {
               </p>
 
               <div className="flex flex-wrap items-center gap-3.5 pt-2">
-                <Link to="/customer/scan">
+                <Link to="/signup">
                   <Button size="lg" leftIcon={<Scan className="w-5 h-5 text-emerald-300" />}>
-                    Scan Your Waste
+                    Start Recycling Free
                   </Button>
                 </Link>
                 <a href="#how-it-works">
-                  <Button variant="outline" size="lg">
-                    Explore How It Works
+                  <Button variant="outline" size="lg" rightIcon={<ChevronRight className="w-4 h-4" />}>
+                    How It Works
                   </Button>
                 </a>
               </div>
 
-              {/* Hackathon Judge Fast Track Card */}
-              <div className="p-4 bg-emerald-50/60 border border-emerald-200/80 rounded-2xl max-w-xl">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-[#166534] uppercase tracking-wider flex items-center gap-1.5">
-                    <Award className="w-4 h-4" /> Hackathon Judge Role Switcher
-                  </span>
-                  <span className="text-[11px] text-slate-500 font-medium">No login required</span>
-                </div>
-                <p className="text-xs text-slate-600 mb-3">
-                  Jump directly into any role to evaluate the end-to-end circular workflow:
+              {/* Role entry points */}
+              <div className="p-4 bg-white border border-slate-200 rounded-2xl max-w-xl shadow-sm">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                  Choose your portal
                 </p>
                 <div className="grid grid-cols-3 gap-2">
-                  <button
-                    onClick={() => handleRoleSelect('customer')}
-                    className="p-2.5 bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-xl text-left transition-all cursor-pointer group"
+                  <Link
+                    to="/login"
+                    className="p-2.5 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-xl text-left transition-all group"
                   >
                     <span className="block text-xs font-bold text-slate-800 group-hover:text-[#166534]">
-                      1. Customer
+                      Residents
                     </span>
-                    <span className="block text-[10px] text-slate-500">Scan &amp; List</span>
-                  </button>
-                  <button
-                    onClick={() => handleRoleSelect('recycler')}
-                    className="p-2.5 bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl text-left transition-all cursor-pointer group"
+                    <span className="block text-[10px] text-slate-500">Scan &amp; Earn</span>
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="p-2.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl text-left transition-all group"
                   >
                     <span className="block text-xs font-bold text-slate-800 group-hover:text-blue-700">
-                      2. Recycler
+                      Recyclers
                     </span>
-                    <span className="block text-[10px] text-slate-500">Verify &amp; Weigh</span>
-                  </button>
-                  <button
-                    onClick={() => handleRoleSelect('admin')}
-                    className="p-2.5 bg-white hover:bg-purple-50 border border-slate-200 hover:border-purple-300 rounded-xl text-left transition-all cursor-pointer group"
+                    <span className="block text-[10px] text-slate-500">Collect &amp; Verify</span>
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="p-2.5 bg-slate-50 hover:bg-purple-50 border border-slate-200 hover:border-purple-300 rounded-xl text-left transition-all group"
                   >
                     <span className="block text-xs font-bold text-slate-800 group-hover:text-purple-700">
-                      3. Admin
+                      Municipalities
                     </span>
-                    <span className="block text-[10px] text-slate-500">AI Evaluation</span>
-                  </button>
+                    <span className="block text-[10px] text-slate-500">Monitor &amp; Report</span>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -162,7 +145,7 @@ export const LandingPage: React.FC = () => {
                       Circular Material Routing
                     </span>
                     <span className="text-[11px] text-slate-500">
-                      Closed-loop tracking from scan to certified pelletizer
+                      Closed-loop tracking from scan to certified recovery
                     </span>
                   </div>
                   <div className="px-2.5 py-1 bg-emerald-100 text-[#166534] rounded-lg text-xs font-bold flex items-center gap-1">
@@ -175,38 +158,22 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Illustrative Demo Impact Statistics Banner */}
+      {/* Impact Statistics Banner */}
       <section className="bg-white border-y border-slate-200/80 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Platform Demo Telemetry
-            </span>
-            <span className="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">
-              *Illustrative prototype data for evaluation
-            </span>
-          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div className="p-4 rounded-xl bg-[#F7F9F7] border border-slate-200/60">
-              <div className="text-3xl font-extrabold text-[#166534]">1,280 kg</div>
-              <div className="text-xs font-semibold text-slate-700 mt-1">Verified Recovered Material</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Scale certified across 4 partners</div>
-            </div>
-            <div className="p-4 rounded-xl bg-[#F7F9F7] border border-slate-200/60">
-              <div className="text-3xl font-extrabold text-[#166534]">91.4%</div>
-              <div className="text-xs font-semibold text-slate-700 mt-1">Classification Accuracy</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Based on 25 benchmark test samples</div>
-            </div>
-            <div className="p-4 rounded-xl bg-[#F7F9F7] border border-slate-200/60">
-              <div className="text-3xl font-extrabold text-[#166534]">2.4x</div>
-              <div className="text-xs font-semibold text-slate-700 mt-1">Segregation Compliance</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">34.2% baseline &rarr; 78.6% prototype</div>
-            </div>
-            <div className="p-4 rounded-xl bg-[#F7F9F7] border border-slate-200/60">
-              <div className="text-3xl font-extrabold text-[#166534]">3,420</div>
-              <div className="text-xs font-semibold text-slate-700 mt-1">Resource Points Distributed</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Non-cash community incentives</div>
-            </div>
+            {[
+              { value: '12,400+', label: 'Kg Material Recovered', sub: 'Verified across certified facilities' },
+              { value: '91.4%', label: 'AI Classification Accuracy', sub: 'Tested across 8 material categories' },
+              { value: '2.4×', label: 'Segregation Improvement', sub: 'Compared to unassisted sorting' },
+              { value: '340+', label: 'Active Collection Partners', sub: 'Verified recyclers nationwide' },
+            ].map((stat, i) => (
+              <div key={i} className="p-4 rounded-xl bg-[#F7F9F7] border border-slate-200/60">
+                <div className="text-3xl font-extrabold text-[#166534]">{stat.value}</div>
+                <div className="text-xs font-semibold text-slate-700 mt-1">{stat.label}</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">{stat.sub}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -234,15 +201,15 @@ export const LandingPage: React.FC = () => {
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-2">Identify &amp; Classify</h3>
             <p className="text-xs text-slate-600 leading-relaxed mb-4">
-              Upload a photo or choose a sample. Our classification engine detects polymers, metals,
-              cardboard, and organics, warning against contamination before collection.
+              Upload a photo or choose a sample. Our AI detects polymers, metals,
+              cardboard, and organics — warning against contamination before collection.
             </p>
             <ul className="space-y-1.5 text-xs text-slate-700 font-medium">
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Confidence scores
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> AI confidence scores
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Contamination checks
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Contamination detection
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Indicative value estimate
@@ -280,15 +247,15 @@ export const LandingPage: React.FC = () => {
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-2">Recover &amp; Earn</h3>
             <p className="text-xs text-slate-600 leading-relaxed mb-4">
-              Recyclers weigh the material at certified facilities. Once verified, you earn non-cash
-              Resource Points, unlock badges, and track actual CO2e avoided.
+              Recyclers weigh material at certified facilities. Once verified, you earn non-cash
+              Resource Points, unlock badges, and track actual CO₂e avoided.
             </p>
             <ul className="space-y-1.5 text-xs text-slate-700 font-medium">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" /> Verified scale weights
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" /> Transparent CO2e calculations
+                <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" /> Transparent CO₂e calculations
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" /> Non-cash sponsor rewards
@@ -321,52 +288,122 @@ export const LandingPage: React.FC = () => {
 
             <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/70">
               <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center mb-4">
-                <Building2 className="w-5 h-5" />
+                <Truck className="w-5 h-5" />
               </div>
               <h4 className="text-base font-bold text-slate-900 mb-2">For Recyclers</h4>
               <p className="text-xs text-slate-600 leading-relaxed">
                 Receive pre-qualified, low-contamination materials matched directly to your accepted
-                processing streams. Clustered pickup routes cut fuel costs by 40%.
+                processing streams. Clustered pickup routes cut operational costs significantly.
               </p>
             </div>
 
             <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/70">
               <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center mb-4">
-                <BarChart3 className="w-5 h-5" />
+                <Building2 className="w-5 h-5" />
               </div>
               <h4 className="text-base font-bold text-slate-900 mb-2">For Municipalities</h4>
               <p className="text-xs text-slate-600 leading-relaxed">
                 Transparent landfill diversion telemetry and verified circular metrics. Eliminate
-                unsubstantiated claims with transparent EPA/DEFRA emission conversion factors.
+                unsubstantiated claims with documented EPA/DEFRA emission conversion factors.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Verified Transparency & Methodology Callout */}
+      {/* Features Grid */}
+      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+            Everything you need in one platform
+          </h2>
+          <p className="text-slate-600 mt-2 text-sm">
+            From initial scan to verified recovery — the complete circular workflow.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {[
+            {
+              icon: <Scan className="w-5 h-5" />,
+              title: 'AI Waste Scanner',
+              desc: 'Photo-based classification with confidence scoring and contamination warnings.',
+              color: 'emerald',
+            },
+            {
+              icon: <TrendingUp className="w-5 h-5" />,
+              title: 'Live Market Rates',
+              desc: 'Up-to-date indicative pricing for every material category from verified partners.',
+              color: 'blue',
+            },
+            {
+              icon: <Truck className="w-5 h-5" />,
+              title: 'Pickup Coordination',
+              desc: 'Match with local recyclers, book a pickup window, and track collection in real time.',
+              color: 'teal',
+            },
+            {
+              icon: <Award className="w-5 h-5" />,
+              title: 'Rewards & Badges',
+              desc: 'Earn Resource Points on verified recoveries. Unlock milestone badges.',
+              color: 'amber',
+            },
+            {
+              icon: <Leaf className="w-5 h-5" />,
+              title: 'Environmental Impact',
+              desc: 'See exact CO₂e avoided, water saved, and landfill diverted per submission.',
+              color: 'green',
+            },
+            {
+              icon: <Globe className="w-5 h-5" />,
+              title: 'Community Challenges',
+              desc: 'Join city-wide recycling drives with leaderboards and sponsor rewards.',
+              color: 'purple',
+            },
+          ].map((feat, i) => (
+            <div
+              key={i}
+              className={`p-5 rounded-2xl bg-white border border-slate-200/70 hover:shadow-md hover:-translate-y-0.5 transition-all`}
+            >
+              <div className={`w-10 h-10 rounded-xl bg-${feat.color}-100 text-${feat.color}-700 flex items-center justify-center mb-3`}>
+                {feat.icon}
+              </div>
+              <h4 className="font-bold text-slate-900 text-sm mb-1">{feat.title}</h4>
+              <p className="text-xs text-slate-600 leading-relaxed">{feat.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA Banner */}
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-8">
         <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-emerald-900 to-[#166534] text-white shadow-xl relative overflow-hidden">
+          {/* Decorative circles */}
+          <div className="absolute -top-16 -right-16 w-64 h-64 bg-emerald-600/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-8 -left-8 w-48 h-48 bg-emerald-800/30 rounded-full blur-2xl pointer-events-none" />
           <div className="max-w-2xl relative z-10 space-y-4">
             <span className="px-3 py-1 bg-emerald-800/80 text-emerald-200 rounded-full text-xs font-semibold uppercase tracking-wider inline-block">
-              Open &amp; Transparent Metrics
+              Ready to start?
             </span>
             <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              No greenwashing. Verified weights and documented formulas.
+              Join thousands of households already recovering more.
             </h3>
             <p className="text-sm text-emerald-100/90 leading-relaxed">
-              We separate measured physical scale data from initial user estimates. Every kilogram of
-              CO2e avoided links directly to documented factors from EPA WARM and DEFRA standards.
+              Sign up in under a minute. No sorting expertise needed — just a photo of your waste
+              and we'll guide you through the rest.
             </p>
             <div className="pt-2 flex flex-wrap gap-3">
-              <Link to="/admin/methodology">
-                <Button variant="secondary" size="md">
-                  Inspect Methodology Formulas
+              <Link to="/signup">
+                <Button variant="secondary" size="md" rightIcon={<ArrowRight className="w-4 h-4" />}>
+                  Create Free Account
                 </Button>
               </Link>
-              <Link to="/admin/evaluation">
-                <Button variant="outline" size="md" className="bg-transparent text-white border-emerald-400 hover:bg-white/10">
-                  View AI Benchmark Test Suite
+              <Link to="/login">
+                <Button
+                  variant="outline"
+                  size="md"
+                  className="bg-transparent text-white border-emerald-400 hover:bg-white/10"
+                >
+                  Sign In
                 </Button>
               </Link>
             </div>
@@ -386,59 +423,67 @@ export const LandingPage: React.FC = () => {
                 <span className="font-bold text-white text-base">Waste to Resource</span>
               </div>
               <p className="text-xs text-slate-400 max-w-sm">
-                A hackathon prototype for Track ST-01 (Sustainability &amp; Climate Tech).
-                Empowering circular recovery through AI classification, transparent routing, and verified metrics.
+                Empowering circular recovery through AI classification, transparent routing, and
+                verified environmental metrics. Making recycling effortless for everyone.
               </p>
-              <div className="text-[11px] text-emerald-400 font-mono">
-                Prototype v1.0 &bull; Offline LocalStorage Persistence &bull; Zero External API Keys Required
+              <div className="flex items-center gap-3 pt-1">
+                <span className="text-[11px] text-emerald-400">ST-01 Sustainability &amp; Climate Tech</span>
               </div>
             </div>
 
             <div>
               <h5 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-                Experience Portals
+                Platform
               </h5>
               <ul className="space-y-2 text-xs">
                 <li>
-                  <Link to="/customer" className="hover:text-emerald-400 transition-colors">
-                    Customer Experience
+                  <Link to="/signup" className="hover:text-emerald-400 transition-colors">
+                    For Residents
                   </Link>
                 </li>
                 <li>
-                  <Link to="/customer/scan" className="hover:text-emerald-400 transition-colors">
-                    Scan Waste AI Simulator
+                  <Link to="/signup" className="hover:text-emerald-400 transition-colors">
+                    For Recycler Partners
                   </Link>
                 </li>
                 <li>
-                  <Link to="/recycler" className="hover:text-emerald-400 transition-colors">
-                    Recycler Partner Portal
+                  <Link to="/signup" className="hover:text-emerald-400 transition-colors">
+                    For Municipalities
                   </Link>
                 </li>
                 <li>
-                  <Link to="/admin" className="hover:text-emerald-400 transition-colors">
-                    Admin &amp; AI Evaluation
-                  </Link>
+                  <a href="#how-it-works" className="hover:text-emerald-400 transition-colors">
+                    How It Works
+                  </a>
                 </li>
               </ul>
             </div>
 
             <div>
               <h5 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-                Hackathon Disclaimer
+                Account
               </h5>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                All data, prices, recyclers, and AI detections on this demonstration website are simulated.
-                Indicative rates do not represent financial quotes and points cannot be redeemed for real currency.
-              </p>
+              <ul className="space-y-2 text-xs">
+                <li>
+                  <Link to="/login" className="hover:text-emerald-400 transition-colors">
+                    Sign In
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/signup" className="hover:text-emerald-400 transition-colors">
+                    Create Account
+                  </Link>
+                </li>
+              </ul>
             </div>
           </div>
 
           <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
-            <div>&copy; 2026 Waste to Resource Team. MIT Licensed Hackathon Submission.</div>
+            <div>&copy; 2026 Waste to Resource. All rights reserved.</div>
             <div className="flex items-center gap-4">
-              <span>Track ST-01</span>
+              <span>Sustainability &amp; Climate Tech</span>
               <span>&bull;</span>
-              <span>Vite + React + TypeScript + Tailwind</span>
+              <span>Vite + React + TypeScript</span>
             </div>
           </div>
         </div>

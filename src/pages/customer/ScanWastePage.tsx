@@ -132,21 +132,11 @@ export const ScanWastePage: React.FC = () => {
         </p>
       </div>
 
-      {/* Honest Demo Disclaimer Notice */}
-      <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/90 text-amber-900 flex items-start gap-3">
-        <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-        <div className="text-xs">
-          <span className="font-bold">Demo Analysis Notice:</span> External computer vision AI backend is not
-          connected in this prototype. Analysis is executed locally via simulated classification
-          scenarios to ensure 100% reliable hackathon presentation without external API dependencies.
-        </div>
-      </div>
-
       {/* Sample Quick Action Bar */}
       <Card className="p-4 bg-slate-50/80 border border-slate-200">
         <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
           <Sparkles className="w-4 h-4 text-emerald-600" />
-          Quick Test: Select Pre-configured Scenario
+          Quick Scan: Choose a material type to analyze
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <button

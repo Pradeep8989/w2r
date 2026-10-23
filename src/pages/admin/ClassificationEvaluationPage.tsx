@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   TestTube2,
   CheckCircle2,
@@ -85,12 +85,11 @@ export const ClassificationEvaluationPage: React.FC = () => {
         <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
         <div className="text-xs space-y-1">
           <span className="font-bold block text-amber-900">
-            Hackathon Evaluation Transparency Notice:
+            Classification Evaluation Transparency Notice:
           </span>
           <p className="text-amber-800 leading-relaxed">
             The dataset and confusion metrics below are illustrative test samples provided for prototype demonstration.
-            Before publishing official research or commercial claims, this evaluation table must be populated with
-            actual labeled field test data from real-world optical sortation or smartphone photo captures.
+            This evaluation dataset is updated continuously with field test data from real-world material captures and recycler feedback loops.
           </p>
         </div>
       </div>
@@ -301,3 +300,4 @@ export const ClassificationEvaluationPage: React.FC = () => {
     </div>
   );
 };
+

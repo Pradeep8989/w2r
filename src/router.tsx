@@ -4,6 +4,7 @@ import { AppShell } from './components/layout/AppShell';
 
 // Public
 import { LandingPage } from './pages/public/LandingPage';
+import { AuthPage } from './pages/public/AuthPage';
 
 // Customer
 import { CustomerDashboard } from './pages/customer/CustomerDashboard';
@@ -36,6 +37,14 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <LandingPage />,
+  },
+  {
+    path: '/login',
+    element: <AuthPage />,
+  },
+  {
+    path: '/signup',
+    element: <AuthPage />,
   },
   {
     element: <AppShell />,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Recycle,
@@ -72,7 +72,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }
                 Waste to Resource
               </span>
               <span className="text-[10px] text-emerald-800 font-semibold tracking-wider uppercase block">
-                Circular Recovery Tech
+                Circular Recovery Platform
               </span>
             </div>
           </Link>
@@ -181,3 +181,4 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }
     </header>
   );
 };
+

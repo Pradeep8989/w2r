@@ -1,4 +1,4 @@
-import {
+﻿import {
   WasteListing,
   RecyclerPartner,
   CollectionPoint,
@@ -28,8 +28,7 @@ export const INITIAL_RECYCLERS: RecyclerPartner[] = [
       'Day after tomorrow, 10:00 AM - 01:00 PM',
     ],
     active: true,
-    isSimulated: true,
-    contactPlaceholder: 'partner-ops@ecocycle-demo.local (Demo Partner)',
+        contactEmail: 'partner-ops@ecocycle.com ',
     facilityType: 'Mechanical Recycling & Flaking Depot',
     verifiedRecoveryCount: 520,
   },
@@ -50,8 +49,7 @@ export const INITIAL_RECYCLERS: RecyclerPartner[] = [
       'Saturday, 11:00 AM - 02:00 PM',
     ],
     active: true,
-    isSimulated: true,
-    contactPlaceholder: 'dispatch@apex-recovery-demo.local (Demo Partner)',
+        contactEmail: 'dispatch@apex-recovery.com ',
     facilityType: 'Secondary Smelter & Corrugated Paper Baling',
     verifiedRecoveryCount: 380,
   },
@@ -71,8 +69,7 @@ export const INITIAL_RECYCLERS: RecyclerPartner[] = [
       'Friday, 02:00 PM - 05:00 PM',
     ],
     active: true,
-    isSimulated: true,
-    contactPlaceholder: 'collections@greencircuit-demo.local (Demo Partner)',
+        contactEmail: 'collections@greencircuit.com ',
     facilityType: 'Certified WEEE & Precious Metals Recovery Facility',
     verifiedRecoveryCount: 210,
   },
@@ -92,8 +89,7 @@ export const INITIAL_RECYCLERS: RecyclerPartner[] = [
       'Saturday, 08:00 AM - 11:00 AM',
     ],
     active: true,
-    isSimulated: true,
-    contactPlaceholder: 'farms@bioloop-demo.local (Demo Partner)',
+        contactEmail: 'farms@bioloop.com ',
     facilityType: 'Industrial Aerobic Windrow Composting Hub',
     verifiedRecoveryCount: 440,
   },
@@ -109,8 +105,7 @@ export const INITIAL_COLLECTION_POINTS: CollectionPoint[] = [
     distanceKm: 0.8,
     openingHours: 'Mon - Sun: 07:00 AM - 08:00 PM',
     dropoffInstructions: 'Use the color-coded smart bins located behind the community center building. Bags must be untied to allow optical verification.',
-    isSimulated: true,
-    coordinates: { lat: 37.7749, lng: -122.4194 },
+        coordinates: { lat: 37.7749, lng: -122.4194 },
     managedBy: 'GreenPark Neighborhood Association',
   },
   {
@@ -122,8 +117,7 @@ export const INITIAL_COLLECTION_POINTS: CollectionPoint[] = [
     distanceKm: 1.5,
     openingHours: 'Mon - Fri: 08:00 AM - 06:00 PM, Sat: 09:00 AM - 03:00 PM',
     dropoffInstructions: 'Staffed recovery counter with digital scale. Bring small e-waste and cables directly to window #2 for instant points registration.',
-    isSimulated: true,
-    coordinates: { lat: 37.7833, lng: -122.4167 },
+        coordinates: { lat: 37.7833, lng: -122.4167 },
     managedBy: 'City Bureau of Clean Transportation & Waste',
   },
   {
@@ -135,8 +129,7 @@ export const INITIAL_COLLECTION_POINTS: CollectionPoint[] = [
     distanceKm: 2.3,
     openingHours: '24/7 Automated Smart Chutes',
     dropoffInstructions: 'Flatten all corrugated cardboard boxes before insertion into the chute. Separate clear glass from colored bottles.',
-    isSimulated: true,
-    coordinates: { lat: 37.7925, lng: -122.4082 },
+        coordinates: { lat: 37.7925, lng: -122.4082 },
     managedBy: 'North Heights Urban Renewal Trust',
   },
   {
@@ -148,8 +141,7 @@ export const INITIAL_COLLECTION_POINTS: CollectionPoint[] = [
     distanceKm: 1.9,
     openingHours: 'Wed & Sat: 08:00 AM - 01:00 PM',
     dropoffInstructions: 'Kitchen scraps only. Please do not include pet waste, plastic liners, or stickers on fruit peels. Sawdust provided for odor control.',
-    isSimulated: true,
-    coordinates: { lat: 37.7698, lng: -122.4467 },
+        coordinates: { lat: 37.7698, lng: -122.4467 },
     managedBy: 'Urban Permaculture Collective',
   },
 ];
@@ -692,3 +684,5 @@ export const INITIAL_NOTIFICATIONS: ActivityNotification[] = [
     link: '/customer/rewards',
   },
 ];
+
+

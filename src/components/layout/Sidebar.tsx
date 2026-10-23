@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -164,8 +164,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
       {/* Footer Quick Info */}
       <div className="p-3.5 border-t border-slate-100 bg-slate-50/50 text-[11px] text-slate-500 rounded-b-xl">
         <div className="flex items-center justify-between mb-1">
-          <span className="font-medium text-slate-700">Hackathon Prototype</span>
-          <span className="text-emerald-700 font-semibold">ST-01</span>
+          <span className="font-medium text-slate-700">Waste to Resource</span>
+          <span className="text-emerald-600 font-semibold">v1.0</span>
         </div>
         <p className="text-slate-400 leading-tight">
           Effortless waste-to-resource classification & circular routing.
@@ -174,3 +174,4 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
     </aside>
   );
 };
+

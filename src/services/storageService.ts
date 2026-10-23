@@ -1,4 +1,4 @@
-import {
+﻿import {
   Role,
   WasteListing,
   MaterialCategory,
@@ -208,7 +208,7 @@ export const storageService = {
 
       this.addNotification({
         role: 'customer',
-        title: `🏆 Badge Unlocked: ${b.name}!`,
+        title: `ðŸ† Badge Unlocked: ${b.name}!`,
         message: b.description,
         link: '/customer/rewards',
       });
@@ -301,3 +301,4 @@ export const storageService = {
     window.dispatchEvent(new Event('wtr_role_changed'));
   },
 };
+
