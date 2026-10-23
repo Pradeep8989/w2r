@@ -159,4 +159,48 @@ export const supabaseService = {
       supabase.removeChannel(channel);
     };
   },
+
+  // --- Profiles (Users & Auth Persistence) ---
+  async saveUserProfile(profile: {
+    id: string;
+    email: string;
+    full_name?: string;
+    role: string;
+  }): Promise<{ error: Error | null }> {
+    try {
+      const now = new Date().toISOString();
+      const row = {
+        id: profile.id,
+        email: profile.email.toLowerCase(),
+        full_name: profile.full_name || profile.email.split('@')[0],
+        role: profile.role,
+        last_sign_in_at: now,
+      };
+
+      const { error } = await supabase.from('profiles').upsert(row, {
+        onConflict: 'id',
+      });
+
+      if (error) throw error;
+      return { error: null };
+    } catch (err: any) {
+      console.info('Supabase profile sync note:', err?.message || err);
+      return { error: err };
+    }
+  },
+
+  async getUserProfile(id: string): Promise<{ data: any; error: Error | null }> {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (err: any) {
+      return { data: null, error: err };
+    }
+  },
 };

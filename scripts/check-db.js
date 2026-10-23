@@ -21,14 +21,18 @@ async function runCheck() {
   }
 
   // 2. Check Database Tables
-  const tables = ['listings', 'materials', 'recyclers', 'reward_transactions'];
+  const tables = ['listings', 'materials', 'recyclers', 'reward_transactions', 'profiles'];
   console.log('\nChecking Database Tables:');
   for (const table of tables) {
-    const { count, error } = await supabase.from(table).select('*', { count: 'exact', head: true });
+    const { error } = await supabase.from(table).select('id').limit(1);
     if (error) {
-      console.log(`❌ Table public.${table}: ${error.message}`);
+      if (error.code === 'PGRST205' || error.message?.includes('schema cache')) {
+        console.log(`⚠️  Table public.${table}: Pending creation (Run updated supabase/schema.sql in Supabase SQL editor)`);
+      } else {
+        console.log(`❌ Table public.${table}: ${error.message}`);
+      }
     } else {
-      console.log(`✅ Table public.${table}: ONLINE (${count ?? 0} rows found)`);
+      console.log(`✅ Table public.${table}: ONLINE and ready`);
     }
   }
 

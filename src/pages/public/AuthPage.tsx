@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { storageService } from '../../services/storageService';
 import { supabase } from '../../lib/supabase';
+import { supabaseService } from '../../services/supabaseService';
 import { Role } from '../../types';
 
 type AuthMode = 'login' | 'signup';
@@ -173,6 +174,14 @@ export const AuthPage: React.FC = () => {
 
       storageService.setCurrentUser(userSession);
       storageService.setCurrentRole(selectedRole);
+
+      // Save / Upsert user profile to Supabase database (public.profiles)
+      await supabaseService.saveUserProfile({
+        id: userSession.id,
+        email: userSession.email,
+        full_name: userSession.name,
+        role: userSession.role,
+      });
 
       // Redirect strictly to the selected role's portal
       if (selectedRole === 'customer') {

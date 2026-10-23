@@ -89,6 +89,17 @@ CREATE TABLE IF NOT EXISTS public.reward_transactions (
   timestamp TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 5. PROFILES / USERS TABLE (Stores all registered and logged in users)
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  full_name TEXT,
+  role TEXT NOT NULL DEFAULT 'customer',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  last_sign_in_at TIMESTAMPTZ DEFAULT NOW(),
+  metadata JSONB DEFAULT '{}'::jsonb
+);
+
 -- ========================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- Enables anonymous / public read & write for prototype
@@ -98,6 +109,7 @@ ALTER TABLE public.listings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.materials ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.recyclers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reward_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Allow public access for all operations (ideal for hackathon demo with anon key)
 DROP POLICY IF EXISTS "Public full access listings" ON public.listings;
@@ -112,5 +124,35 @@ CREATE POLICY "Public full access recyclers" ON public.recyclers FOR ALL TO anon
 DROP POLICY IF EXISTS "Public full access reward_transactions" ON public.reward_transactions;
 CREATE POLICY "Public full access reward_transactions" ON public.reward_transactions FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
--- Enable Realtime for listings table
+DROP POLICY IF EXISTS "Public full access profiles" ON public.profiles;
+CREATE POLICY "Public full access profiles" ON public.profiles FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+-- Enable Realtime for listings and profiles tables
 ALTER PUBLICATION supabase_realtime ADD TABLE public.listings;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles;
+
+-- Auto-sync from auth.users to public.profiles on new signup
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, full_name, role, created_at, last_sign_in_at)
+  VALUES (
+    new.id::text,
+    new.email,
+    COALESCE(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)),
+    COALESCE(new.raw_user_meta_data->>'role', 'customer'),
+    NOW(),
+    NOW()
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    last_sign_in_at = NOW(),
+    full_name = EXCLUDED.full_name,
+    role = EXCLUDED.role;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
