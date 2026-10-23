@@ -7,7 +7,6 @@ import {
   Menu,
   X,
   CheckCheck,
-  ExternalLink,
   LogOut,
   User,
 } from 'lucide-react';
@@ -33,17 +32,24 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }
 
   useEffect(() => {
     loadData();
-    const handleStorageChange = () => loadData();
+
+    const handleStorageChange = () => {
+      loadData();
+    };
+
     window.addEventListener('wtr_data_changed', handleStorageChange);
     window.addEventListener('wtr_auth_changed', handleStorageChange);
+    window.addEventListener('wtr_role_changed', handleStorageChange);
+
     return () => {
       window.removeEventListener('wtr_data_changed', handleStorageChange);
       window.removeEventListener('wtr_auth_changed', handleStorageChange);
+      window.removeEventListener('wtr_role_changed', handleStorageChange);
     };
   }, []);
 
   const handleLogout = () => {
-    storageService.setCurrentUser(null);
+    storageService.logout();
     navigate('/login');
   };
 
@@ -60,6 +66,24 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }
       navigate(notif.link);
     }
   };
+
+  const roleLabel =
+    currentUser?.role === 'customer'
+      ? 'Resident'
+      : currentUser?.role === 'recycler'
+      ? 'Recycler Partner'
+      : currentUser?.role === 'admin'
+      ? 'System Admin'
+      : 'User';
+
+  const roleBadgeColor =
+    currentUser?.role === 'customer'
+      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+      : currentUser?.role === 'recycler'
+      ? 'bg-blue-50 text-blue-700 border-blue-200'
+      : 'bg-purple-50 text-purple-700 border-purple-200';
+
+  const userInitial = (currentUser?.name || currentUser?.email || 'U').charAt(0).toUpperCase();
 
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-2.5">
@@ -85,7 +109,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }
                 Waste to Resource
               </span>
               <span className="text-[10px] text-emerald-800 font-semibold tracking-wider uppercase block">
-                Circular Recovery Tech
+                Circular Recovery Platform
               </span>
             </div>
           </Link>
@@ -98,13 +122,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }
 
         {/* Right: Actions & Notifications */}
         <div className="flex items-center gap-2.5">
-          <Link
-            to="/customer/scan"
-            className="hidden sm:inline-flex items-center gap-1.5 bg-[#166534] hover:bg-[#14532d] text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-all shadow-xs"
-          >
-            <Scan className="w-3.5 h-3.5 text-emerald-300" />
-            <span>Scan Waste</span>
-          </Link>
+          {currentUser && currentUser.role === 'customer' && (
+            <Link
+              to="/customer/scan"
+              className="hidden sm:inline-flex items-center gap-1.5 bg-[#166534] hover:bg-[#14532d] text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-all shadow-xs"
+            >
+              <Scan className="w-3.5 h-3.5 text-emerald-300" />
+              <span>Scan Waste</span>
+            </Link>
+          )}
 
           {/* Notifications Dropdown */}
           <div className="relative">
@@ -185,30 +211,32 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }
             )}
           </div>
 
-          {/* User Profile or Sign In */}
+          {/* User Profile Pill & Sign Out */}
           {currentUser ? (
             <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
-                  {currentUser.name.charAt(0).toUpperCase()}
+                  {userInitial}
                 </div>
                 <div className="hidden sm:block text-left">
-                  <div className="text-xs font-bold text-slate-900 leading-tight truncate max-w-[110px]">
+                  <div className="text-xs font-bold text-slate-900 leading-tight truncate max-w-[120px]">
                     {currentUser.name}
                   </div>
-                  <span className="inline-block text-[10px] font-semibold text-emerald-800 uppercase tracking-wider">
-                    {currentUser.role}
+                  <span
+                    className={`inline-block text-[10px] font-semibold px-1.5 py-0.2 rounded border ${roleBadgeColor}`}
+                  >
+                    {roleLabel}
                   </span>
                 </div>
               </div>
 
               <button
                 onClick={handleLogout}
-                className="p-1.5 sm:px-2 sm:py-1 text-slate-500 hover:text-red-700 hover:bg-red-50 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer"
+                className="p-1.5 sm:px-2.5 sm:py-1 text-slate-600 hover:text-red-700 hover:bg-red-50 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ml-1"
                 title="Sign out of your account"
               >
-                <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden md:inline text-[11px]">Logout</span>
+                <LogOut className="w-4 h-4 text-slate-500 hover:text-red-600" />
+                <span className="hidden md:inline">Sign Out</span>
               </button>
             </div>
           ) : (
@@ -223,11 +251,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }
             </div>
           )}
         </div>
-      </div>
-
-      {/* Mobile Role Switcher Bar */}
-      <div className="md:hidden mt-2 pt-2 border-t border-slate-100 flex justify-center">
-        <RoleSwitcher />
       </div>
     </header>
   );

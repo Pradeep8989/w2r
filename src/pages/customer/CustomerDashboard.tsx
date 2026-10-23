@@ -24,11 +24,13 @@ import { WasteListing, CommunityChallenge } from '../../types';
 
 export const CustomerDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(storageService.getCurrentUser());
   const [listings, setListings] = useState<WasteListing[]>([]);
   const [challenge, setChallenge] = useState<CommunityChallenge | null>(null);
   const [totalPoints, setTotalPoints] = useState(0);
 
   const loadData = () => {
+    setCurrentUser(storageService.getCurrentUser());
     setListings(storageService.getListings());
     setChallenge(storageService.getCommunityChallenge());
     setTotalPoints(storageService.getTotalPoints());
@@ -38,17 +40,26 @@ export const CustomerDashboard: React.FC = () => {
     loadData();
     const handleUpdate = () => loadData();
     window.addEventListener('wtr_data_changed', handleUpdate);
-    return () => window.removeEventListener('wtr_data_changed', handleUpdate);
+    window.addEventListener('wtr_auth_changed', handleUpdate);
+    return () => {
+      window.removeEventListener('wtr_data_changed', handleUpdate);
+      window.removeEventListener('wtr_auth_changed', handleUpdate);
+    };
   }, []);
 
-  const impact = impactService.calculateImpact('usr_sarah');
+  const impact = impactService.calculateImpact(currentUser?.id);
+
+  // Filter listings by current user
+  const userListings = listings.filter(
+    (l) => !currentUser?.id || l.customerId === currentUser.id
+  );
 
   // Find active pickup (either scheduled or in-transit)
-  const activePickup = listings.find((l) =>
+  const activePickup = userListings.find((l) =>
     ['pickup_scheduled', 'collected'].includes(l.status)
   );
 
-  const recentListings = listings.slice(0, 4);
+  const recentListings = userListings.slice(0, 4);
 
   return (
     <div className="space-y-6">
@@ -60,7 +71,7 @@ export const CustomerDashboard: React.FC = () => {
             <span>Effortless Circular Recovery Active</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Welcome back, Sarah! 👋
+            Welcome back, {currentUser?.name || 'Resident'}! 👋
           </h1>
           <p className="text-xs sm:text-sm text-emerald-100/90 mt-2 leading-relaxed">
             Ready to divert more waste today? Scan any item with our AI detector to discover its
@@ -303,62 +314,81 @@ export const CustomerDashboard: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {recentListings.map((listing) => (
-                <tr key={listing.id} className="hover:bg-slate-50/70 transition-colors">
-                  <td className="px-5 py-3.5">
-                    <div className="font-semibold text-slate-900">{listing.title}</div>
-                    <div className="text-[11px] text-slate-400 font-mono mt-0.5">{listing.id}</div>
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex flex-wrap gap-1">
-                      {listing.materials.map((m, i) => (
-                        <MaterialTag
-                          key={i}
-                          categoryId={m.categoryId}
-                          categoryName={m.categoryName}
-                          size="sm"
-                        />
-                      ))}
+              {recentListings.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-5 py-10 text-center">
+                    <div className="max-w-xs mx-auto text-slate-500">
+                      <Package className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                      <p className="font-semibold text-slate-700 text-sm">No waste listings yet</p>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Use the AI Scanner to classify your first recyclable material from scratch.
+                      </p>
+                      <Link to="/customer/scan" className="mt-3 inline-block">
+                        <Button size="sm" variant="accent">
+                          Scan Waste Now
+                        </Button>
+                      </Link>
                     </div>
                   </td>
-                  <td className="px-5 py-3.5 font-medium text-slate-700">
-                    {listing.verifiedWeightKg ? (
-                      <span className="text-emerald-700 font-bold">
-                        {listing.verifiedWeightKg} kg (verified)
-                      </span>
-                    ) : (
-                      <span>
-                        ~{listing.materials.reduce((a, b) => a + b.estimatedQuantity, 0)} kg
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3.5 font-medium text-slate-800">
-                    {listing.finalIndicativeValue ? (
-                      <span className="font-bold text-emerald-700">
-                        ${listing.finalIndicativeValue.toFixed(2)}
-                      </span>
-                    ) : (
-                      <span>
-                        ${listing.estimatedValueMin.toFixed(2)} - ${listing.estimatedValueMax.toFixed(2)}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <Badge status={listing.status}>
-                      {listing.status.replace('_', ' ')}
-                    </Badge>
-                  </td>
-                  <td className="px-5 py-3.5 text-right">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => navigate(`/customer/listings/${listing.id}`)}
-                    >
-                      Details
-                    </Button>
-                  </td>
                 </tr>
-              ))}
+              ) : (
+                recentListings.map((listing) => (
+                  <tr key={listing.id} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="px-5 py-3.5">
+                      <div className="font-semibold text-slate-900">{listing.title}</div>
+                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">{listing.id}</div>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <div className="flex flex-wrap gap-1">
+                        {listing.materials.map((m, i) => (
+                          <MaterialTag
+                            key={i}
+                            categoryId={m.categoryId}
+                            categoryName={m.categoryName}
+                            size="sm"
+                          />
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-5 py-3.5 font-medium text-slate-700">
+                      {listing.verifiedWeightKg ? (
+                        <span className="text-emerald-700 font-bold">
+                          {listing.verifiedWeightKg} kg (verified)
+                        </span>
+                      ) : (
+                        <span>
+                          ~{listing.materials.reduce((a, b) => a + b.estimatedQuantity, 0)} kg
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3.5 font-medium text-slate-800">
+                      {listing.finalIndicativeValue ? (
+                        <span className="font-bold text-emerald-700">
+                          ${listing.finalIndicativeValue.toFixed(2)}
+                        </span>
+                      ) : (
+                        <span>
+                          ${listing.estimatedValueMin.toFixed(2)} - ${listing.estimatedValueMax.toFixed(2)}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <Badge status={listing.status}>
+                        {listing.status.replace('_', ' ')}
+                      </Badge>
+                    </td>
+                    <td className="px-5 py-3.5 text-right">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => navigate(`/customer/listings/${listing.id}`)}
+                      >
+                        Details
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   Users,
   Edit2,
@@ -101,7 +101,7 @@ export const RecyclerManagementPage: React.FC = () => {
                     <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
                       {partner.name}
                       <span className="text-[10px] bg-slate-100 text-slate-600 font-semibold px-2 py-0.5 rounded-full">
-                        ★ {partner.rating}
+                        â˜… {partner.rating}
                       </span>
                     </h3>
                     <p className="text-xs text-slate-500">{partner.facilityType}</p>
@@ -131,7 +131,7 @@ export const RecyclerManagementPage: React.FC = () => {
                   <span>Next Pickup: {partner.nextPickupSlot}</span>
                 </div>
                 <div className="text-[11px] text-slate-400 font-mono">
-                  Contact: {partner.contactPlaceholder}
+                  Contact: {partner.contactEmail ?? '—'}
                 </div>
               </div>
 
@@ -261,3 +261,5 @@ export const RecyclerManagementPage: React.FC = () => {
     </div>
   );
 };
+
+

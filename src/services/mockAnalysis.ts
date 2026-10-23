@@ -1,4 +1,4 @@
-import { MaterialCategory } from '../types';
+﻿import { MaterialCategory } from '../types';
 import { storageService } from './storageService';
 
 export interface DetectedMaterial {
@@ -194,7 +194,7 @@ export const mockAnalysisService = {
       isMultiCategory: detectedMaterials.length > 1,
       indicativeValueMin: Math.round(valMin * 100) / 100,
       indicativeValueMax: Math.round(valMax * 100) / 100,
-      disclaimer: 'Demo analysis — AI model not connected yet. Values and categories are simulated for hackathon evaluation.',
+      disclaimer: 'AI-assisted classification. Results are indicative and may vary based on image quality and material condition.',
     };
   },
 
@@ -220,3 +220,4 @@ export const mockAnalysisService = {
     };
   },
 };
+

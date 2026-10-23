@@ -93,10 +93,12 @@ export const CreateListingPage: React.FC = () => {
     const valMin = Math.round(quantity * selectedMat.ratePerKgMin * 100) / 100;
     const valMax = Math.round(quantity * selectedMat.ratePerKgMax * 100) / 100;
 
+    const currentUser = storageService.getCurrentUser();
+
     const newListing = listingService.create({
       title,
-      customerId: 'usr_sarah',
-      customerName: 'Sarah Jenkins',
+      customerId: currentUser?.id || `usr_${Date.now()}`,
+      customerName: currentUser?.name || 'Resident',
       customerAddress: address,
       locality,
       materials: [

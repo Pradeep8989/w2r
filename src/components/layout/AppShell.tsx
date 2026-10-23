@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { DemoBanner } from './DemoBanner';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
 import { Breadcrumbs } from './Breadcrumbs';
@@ -10,8 +9,6 @@ export const AppShell: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F7F9F7] text-[#172018]">
-      {/* Top Demo Banner */}
-      <DemoBanner />
 
       {/* Main Top Header */}
       <Navbar

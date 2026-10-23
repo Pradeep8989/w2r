@@ -41,9 +41,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile, isMobileDrawer 
   const [pointsTotal, setPointsTotal] = useState(0);
 
   const refreshCounts = () => {
+    const user = storageService.getCurrentUser();
     const listings = storageService.getListings();
+    const userListings =
+      user?.role === 'customer' && user.id
+        ? listings.filter((l) => l.customerId === user.id)
+        : listings;
+
     setActiveListingsCount(
-      listings.filter((l) =>
+      userListings.filter((l) =>
         ['awaiting_recycler', 'recycler_accepted', 'pickup_scheduled', 'collected'].includes(l.status)
       ).length
     );
@@ -55,7 +61,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile, isMobileDrawer 
     refreshCounts();
     const handleStorageChange = () => refreshCounts();
     window.addEventListener('wtr_data_changed', handleStorageChange);
-    return () => window.removeEventListener('wtr_data_changed', handleStorageChange);
+    window.addEventListener('wtr_auth_changed', handleStorageChange);
+    return () => {
+      window.removeEventListener('wtr_data_changed', handleStorageChange);
+      window.removeEventListener('wtr_auth_changed', handleStorageChange);
+    };
   }, []);
 
   const getRole = () => {
@@ -183,8 +193,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile, isMobileDrawer 
       {/* Footer Quick Info */}
       <div className="p-3.5 border-t border-slate-100 bg-slate-50/50 text-[11px] text-slate-500 rounded-b-xl">
         <div className="flex items-center justify-between mb-1">
-          <span className="font-medium text-slate-700">Hackathon Prototype</span>
-          <span className="text-emerald-700 font-semibold">ST-01</span>
+          <span className="font-medium text-slate-700">Waste to Resource</span>
+          <span className="text-emerald-600 font-semibold">v1.0</span>
         </div>
         <p className="text-slate-400 leading-tight">
           Effortless waste-to-resource classification & circular routing.
@@ -193,3 +203,4 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile, isMobileDrawer 
     </aside>
   );
 };
+

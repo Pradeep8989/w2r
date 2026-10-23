@@ -91,8 +91,7 @@ export interface RecyclerPartner {
   nextPickupSlot: string;
   availableWindows: string[];
   active: boolean;
-  isSimulated: true;
-  contactPlaceholder: string;
+  contactEmail?: string;
   facilityType: string;
   verifiedRecoveryCount: number;
 }
@@ -106,7 +105,7 @@ export interface CollectionPoint {
   distanceKm: number;
   openingHours: string;
   dropoffInstructions: string;
-  isSimulated: true;
+  isSimulated?: boolean;
   coordinates: { lat: number; lng: number };
   managedBy: string;
 }
