@@ -53,18 +53,27 @@ export const LandingPage: React.FC = () => {
             </div>
           </Link>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
             <RoleSwitcher />
-            <Link to="/customer/scan">
+            <Link
+              to="/login"
+              className="text-xs font-semibold text-slate-600 hover:text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link to="/signup">
               <Button size="sm" leftIcon={<Scan className="w-4 h-4" />}>
-                Scan Waste
+                Get Started
               </Button>
             </Link>
           </div>
 
-          <div className="md:hidden">
-            <Link to="/customer">
-              <Button size="sm">Launch App</Button>
+          <div className="md:hidden flex items-center gap-2">
+            <Link to="/login" className="text-xs font-semibold text-slate-700 px-2 py-1">
+              Sign In
+            </Link>
+            <Link to="/signup">
+              <Button size="sm">Sign Up</Button>
             </Link>
           </div>
         </div>

@@ -11,6 +11,7 @@ import {
   EnvironmentalFactor,
   ActivityNotification,
   ImpactComparisonMetric,
+  UserSession,
 } from '../types';
 import {
   INITIAL_LISTINGS,
@@ -27,6 +28,8 @@ import { INITIAL_MATERIALS, INITIAL_ENVIRONMENTAL_FACTORS } from '../data/materi
 import { supabaseService } from './supabaseService';
 
 const KEYS = {
+  CURRENT_USER: 'wtr_current_user',
+  USERS: 'wtr_registered_users',
   ROLE: 'wtr_active_role',
   LISTINGS: 'wtr_listings',
   MATERIALS: 'wtr_materials',
@@ -62,8 +65,49 @@ function safeSet<T>(key: string, value: T): void {
 }
 
 export const storageService = {
+  // Auth & Session
+  getCurrentUser(): UserSession | null {
+    return safeGet<UserSession | null>(KEYS.CURRENT_USER, null);
+  },
+
+  setCurrentUser(user: UserSession | null): void {
+    if (user) {
+      safeSet(KEYS.CURRENT_USER, user);
+      localStorage.setItem(KEYS.ROLE, user.role);
+    } else {
+      localStorage.removeItem(KEYS.CURRENT_USER);
+    }
+    window.dispatchEvent(new Event('wtr_auth_changed'));
+    window.dispatchEvent(new Event('wtr_role_changed'));
+    window.dispatchEvent(new Event('wtr_data_changed'));
+  },
+
+  getRegisteredUsers(): UserSession[] {
+    return safeGet<UserSession[]>(KEYS.USERS, []);
+  },
+
+  registerUser(user: Omit<UserSession, 'id'> & { id?: string }): UserSession {
+    const users = this.getRegisteredUsers();
+    const newUser: UserSession = {
+      id: user.id || `usr_${Date.now()}`,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
+    const existingIndex = users.findIndex((u) => u.email.toLowerCase() === user.email.toLowerCase());
+    if (existingIndex !== -1) {
+      users[existingIndex] = newUser;
+    } else {
+      users.push(newUser);
+    }
+    safeSet(KEYS.USERS, users);
+    return newUser;
+  },
+
   // Role
   getCurrentRole(): Role {
+    const user = this.getCurrentUser();
+    if (user && user.role) return user.role;
     try {
       const role = localStorage.getItem(KEYS.ROLE) as Role;
       if (role === 'customer' || role === 'recycler' || role === 'admin') {
@@ -76,9 +120,14 @@ export const storageService = {
   },
 
   setCurrentRole(role: Role): void {
-    localStorage.setItem(KEYS.ROLE, role);
-    window.dispatchEvent(new Event('wtr_role_changed'));
-    window.dispatchEvent(new Event('wtr_data_changed'));
+    const currentUser = this.getCurrentUser();
+    if (currentUser) {
+      this.setCurrentUser({ ...currentUser, role });
+    } else {
+      localStorage.setItem(KEYS.ROLE, role);
+      window.dispatchEvent(new Event('wtr_role_changed'));
+      window.dispatchEvent(new Event('wtr_data_changed'));
+    }
   },
 
   // Listings
