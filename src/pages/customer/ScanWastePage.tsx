@@ -1,328 +1,407 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  UploadCloud,
-  FileImage,
+  Camera,
+  Image as ImageIcon,
   Sparkles,
-  Trash2,
-  RefreshCw,
-  AlertCircle,
+  BarChart3,
   CheckCircle2,
-  Package,
-  Box,
-  Layers,
-  FileText,
   ArrowRight,
+  ShieldAlert,
+  Award,
+  RefreshCw,
+  Recycle,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { mockAnalysisService, SAMPLE_SCENARIOS } from '../../services/mockAnalysis';
+import { CameraScanner } from '../../components/waste/CameraScanner';
+import { ImageUploader } from '../../components/waste/ImageUploader';
+import { AIAnalysisCard } from '../../components/waste/AIAnalysisCard';
+import { PerformanceDashboard } from '../../components/waste/PerformanceDashboard';
+import { aiService, StructuredWasteAnalysis } from '../../services/aiService';
+import { wasteService, WasteSubmissionResult } from '../../services/wasteService';
+import { BoundedMaterial, WasteCategory } from '../../data/materialRules';
 import { useToast } from '../../components/ui/Toast';
+
+type ScanMode = 'camera' | 'upload';
+type ActiveTab = 'scanner' | 'performance';
 
 export const ScanWastePage: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [activeTab, setActiveTab] = useState<ActiveTab>('scanner');
+  const [scanMode, setScanMode] = useState<ScanMode>('camera');
+
+  // Input State
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [selectedScenarioKey, setSelectedScenarioKey] = useState<
-    'PLASTIC_BOTTLES' | 'PAPER' | 'CARDBOARD' | 'MIXED_WASTE' | null
-  >(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const [approxWeightKg, setApproxWeightKg] = useState<number>(1.2);
+
+  // Analysis State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [analysisResult, setAnalysisResult] = useState<StructuredWasteAnalysis | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleFile = (file: File) => {
-    setErrorMessage(null);
-    setSelectedScenarioKey(null);
+  // Submission State
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionSuccess, setSubmissionSuccess] = useState<WasteSubmissionResult | null>(null);
 
-    // Validate type
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-    if (!validTypes.includes(file.type)) {
-      setErrorMessage('Please upload a valid image file (JPG, PNG, or WEBP).');
-      showToast('Unsupported image format', 'error');
-      return;
-    }
-
-    // Validate size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setErrorMessage('Image size exceeds 10MB limit. Please choose a smaller photo.');
-      showToast('Image file too large (max 10MB)', 'error');
-      return;
-    }
-
+  const handleImageSelected = (file: File) => {
     setSelectedFile(file);
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      handleFile(e.dataTransfer.files[0]);
-    }
-  };
-
-  const handleSelectSample = (scenarioKey: 'PLASTIC_BOTTLES' | 'PAPER' | 'CARDBOARD' | 'MIXED_WASTE') => {
-    setSelectedFile(null);
+    setPreviewUrl(URL.createObjectURL(file));
     setErrorMessage(null);
-    setSelectedScenarioKey(scenarioKey);
-    const scenario = SAMPLE_SCENARIOS[scenarioKey];
-    setPreviewUrl(scenario.image);
-    showToast(`Loaded "${scenario.label}"`, 'info');
+    setAnalysisResult(null);
   };
 
   const handleClearImage = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
-    setSelectedScenarioKey(null);
+    setAnalysisResult(null);
     setErrorMessage(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleStartAnalysis = async () => {
-    if (!previewUrl && !selectedFile) {
-      setErrorMessage('Please select or upload a waste photo first.');
+  const handleCameraCapture = async (imageDataUrl: string) => {
+    setPreviewUrl(imageDataUrl);
+    setSelectedFile(null);
+    setAnalysisResult(null);
+    setErrorMessage(null);
+
+    // Trigger analysis immediately on camera capture
+    await runAnalysis(imageDataUrl);
+  };
+
+  const runAnalysis = async (fileOrUrl?: File | string) => {
+    const target = fileOrUrl || selectedFile || previewUrl;
+    if (!target) {
+      setErrorMessage('Please capture or select an image first.');
       return;
     }
 
     setIsAnalyzing(true);
-    setAnalysisProgress(15);
+    setErrorMessage(null);
+    setAnalysisProgress(20);
 
     const progressTimer = setInterval(() => {
-      setAnalysisProgress((prev) => (prev >= 90 ? prev : prev + 25));
-    }, 250);
+      setAnalysisProgress((prev) => (prev >= 85 ? prev : prev + 20));
+    }, 200);
 
     try {
-      const result = await mockAnalysisService.runAnalysis(
-        selectedFile || previewUrl || '',
-        selectedScenarioKey || undefined
-      );
-
+      const result = await aiService.analyzeWasteImage(target);
       clearInterval(progressTimer);
       setAnalysisProgress(100);
+      setAnalysisResult(result);
 
-      // Persist temporary analysis in sessionStorage so the analysis page can consume it
-      sessionStorage.setItem('wtr_latest_analysis', JSON.stringify(result));
-      showToast('Waste analysis complete!', 'success');
-
-      setTimeout(() => {
-        navigate('/customer/analysis');
-      }, 300);
-    } catch (err) {
+      if (result.isLowConfidence) {
+        showToast('Low confidence detection. Please verify material.', 'info');
+      } else {
+        showToast(`Identified: ${result.material} (${Math.round(result.confidence * 100)}%)`, 'success');
+      }
+    } catch (err: any) {
       clearInterval(progressTimer);
+      setErrorMessage(err.message || 'Waste classification failed. Please try again.');
+      showToast('Analysis encountered an error', 'error');
+    } finally {
       setIsAnalyzing(false);
-      setErrorMessage('Error running analysis simulation. Please try again.');
-      showToast('Analysis failed', 'error');
     }
+  };
+
+  const handleSubmitForRecovery = async (override?: {
+    material: BoundedMaterial;
+    category: WasteCategory;
+  }) => {
+    if (!analysisResult) return;
+
+    setIsSubmitting(true);
+    try {
+      const finalMaterial = override?.material || analysisResult.material;
+      const finalCategory = override?.category || analysisResult.category;
+
+      const result = wasteService.submitScannedWaste({
+        category: finalCategory,
+        material: finalMaterial,
+        weightKg: approxWeightKg,
+        recoveryRoute: analysisResult.recommended_route,
+        estimatedRewardPoints: Math.round(approxWeightKg * 25), // calculated
+        confidence: analysisResult.confidence,
+        contamination: analysisResult.contamination,
+        reason: analysisResult.reason,
+        photoUrl: previewUrl || undefined,
+      });
+
+      setSubmissionSuccess(result);
+      showToast('Waste submitted for recovery!', 'success');
+    } catch (err: any) {
+      showToast('Submission failed. Please try again.', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleReset = () => {
+    setAnalysisResult(null);
+    setPreviewUrl(null);
+    setSelectedFile(null);
+    setSubmissionSuccess(null);
+    setErrorMessage(null);
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Title & Explanatory Banner */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          AI Waste Identification &amp; Material Analysis
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Upload an image of household or commercial waste to instantly classify materials, check
-          contamination risks, and calculate circular recovery options.
-        </p>
+      {/* Top Navigation Tabs: Scan Waste vs Impact & AI Performance */}
+      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Scan Your Waste
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Identify your waste and find the right recovery route.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
+          <button
+            type="button"
+            onClick={() => setActiveTab('scanner')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'scanner'
+                ? 'bg-white text-emerald-800 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Scanner
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('performance')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'performance'
+                ? 'bg-white text-emerald-800 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            AI Performance &amp; Impact
+          </button>
+        </div>
       </div>
 
-      {/* Sample Quick Action Bar */}
-      <Card className="p-4 bg-slate-50/80 border border-slate-200">
-        <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-          <Sparkles className="w-4 h-4 text-emerald-600" />
-          Quick Scan: Choose a material type to analyze
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {/* Plastic */}
-          <button
-            type="button"
-            onClick={() => handleSelectSample('PLASTIC_BOTTLES')}
-            className={`p-3 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
-              selectedScenarioKey === 'PLASTIC_BOTTLES'
-                ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-400/40'
-                : 'bg-white border-slate-200 hover:border-emerald-300'
-            }`}
-          >
-            <div className="w-9 h-9 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
-              <Package className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-slate-800 block">Plastic (PET / HDPE)</span>
-              <span className="text-[10px] text-slate-500">95% Conf. &bull; Bottles &amp; Jugs</span>
-            </div>
-          </button>
+      {activeTab === 'performance' ? (
+        /* Performance Dashboard View */
+        <PerformanceDashboard />
+      ) : (
+        /* Scanner Flow */
+        <div className="space-y-6">
+          {/* Success Confirmation Modal / Banner (Section 13) */}
+          {submissionSuccess && (
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-xl space-y-4 animate-in fade-in duration-300">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                    <CheckCircle2 className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black">
+                      Waste Submitted Successfully!
+                    </h3>
+                    <p className="text-emerald-100 text-xs sm:text-sm">
+                      Your material has been registered and scheduled into the circular tracking stream.
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-          {/* Paper */}
-          <button
-            type="button"
-            onClick={() => handleSelectSample('PAPER')}
-            className={`p-3 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
-              selectedScenarioKey === 'PAPER'
-                ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-400/40'
-                : 'bg-white border-slate-200 hover:border-emerald-300'
-            }`}
-          >
-            <div className="w-9 h-9 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-              <FileText className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-slate-800 block">Paper &amp; Newsprint</span>
-              <span className="text-[10px] text-slate-500">94% Conf. &bull; Office &amp; Books</span>
-            </div>
-          </button>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-xl bg-black/20 backdrop-blur-md border border-white/10 text-xs">
+                <div>
+                  <span className="text-white/70 block">Assigned Recovery Route:</span>
+                  <span className="font-bold text-sm text-white">
+                    {submissionSuccess.recoveryRoute}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-white/70 block">Material &amp; Weight:</span>
+                  <span className="font-bold text-sm text-white">
+                    {submissionSuccess.material} ({submissionSuccess.weightKg} kg)
+                  </span>
+                </div>
+                <div>
+                  <span className="text-white/70 block">Estimated Reward:</span>
+                  <span className="font-bold text-sm text-amber-300 flex items-center gap-1">
+                    <Award className="w-4 h-4" />
+                    +{submissionSuccess.estimatedRewardPoints} Points
+                  </span>
+                </div>
+              </div>
 
-          {/* Cardboard */}
-          <button
-            type="button"
-            onClick={() => handleSelectSample('CARDBOARD')}
-            className={`p-3 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
-              selectedScenarioKey === 'CARDBOARD'
-                ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-400/40'
-                : 'bg-white border-slate-200 hover:border-emerald-300'
-            }`}
-          >
-            <div className="w-9 h-9 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-              <Box className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-slate-800 block">Cardboard Packaging</span>
-              <span className="text-[10px] text-slate-500">96% Conf. &bull; Shipping Boxes</span>
-            </div>
-          </button>
-        </div>
-      </Card>
-
-      {/* Main Upload / Preview Area */}
-      <Card className="p-6">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="hidden"
-          onChange={(e) => {
-            if (e.target.files && e.target.files[0]) {
-              handleFile(e.target.files[0]);
-            }
-          }}
-        />
-
-        {!previewUrl ? (
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDragging(true);
-            }}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-            className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all duration-200 ${
-              isDragging
-                ? 'border-emerald-500 bg-emerald-50/50 scale-[1.01]'
-                : 'border-slate-200 hover:border-emerald-400 hover:bg-slate-50/50'
-            }`}
-          >
-            <div className="w-16 h-16 rounded-full bg-emerald-50 text-[#166534] mx-auto flex items-center justify-center mb-4">
-              <UploadCloud className="w-8 h-8" />
-            </div>
-            <h3 className="text-base font-bold text-slate-800">
-              Drag &amp; drop your waste photo here, or browse
-            </h3>
-            <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-              Supports high-resolution JPG, PNG, and WEBP photos (up to 10MB).
-            </p>
-            <div className="mt-5">
-              <Button size="sm" variant="secondary" type="button">
-                Select Photo from Computer
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="relative rounded-2xl overflow-hidden border border-slate-200 max-h-96 flex items-center justify-center bg-slate-900/5">
-              <img
-                src={previewUrl}
-                alt="Waste preview"
-                className="max-h-96 w-auto object-contain rounded-xl"
-              />
-              <div className="absolute top-3 right-3 flex items-center gap-2">
-                <button
+              <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
+                <Button
                   type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="p-2 rounded-xl bg-white/90 hover:bg-white text-slate-700 shadow-md backdrop-blur-xs transition-colors cursor-pointer text-xs flex items-center gap-1 font-medium"
-                  title="Replace photo"
+                  variant="outline"
+                  onClick={handleReset}
+                  className="bg-white/10 hover:bg-white/20 text-white border-white/20"
                 >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Replace</span>
-                </button>
-                <button
+                  Scan Another Item
+                </Button>
+                <Button
                   type="button"
-                  onClick={handleClearImage}
-                  className="p-2 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white shadow-md backdrop-blur-xs transition-colors cursor-pointer text-xs"
-                  title="Remove photo"
+                  variant="primary"
+                  onClick={() => navigate('/customer/my-listings')}
+                  className="bg-white text-emerald-900 hover:bg-emerald-50 font-bold"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                  <span>View in My Waste</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
               </div>
             </div>
+          )}
 
-            <div className="flex items-center justify-between text-xs text-slate-500 px-1">
-              <span>
-                Selected image:{' '}
-                <strong className="text-slate-800">
-                  {selectedFile ? selectedFile.name : selectedScenarioKey ? `${selectedScenarioKey.toLowerCase()}.jpg` : 'Sample'}
-                </strong>
-              </span>
-              <span>Ready for simulated AI classification</span>
-            </div>
-          </div>
-        )}
+          {!analysisResult && !submissionSuccess && (
+            <>
+              {/* Dual Options Selector (Section 1) */}
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setScanMode('camera')}
+                  className={`p-5 rounded-2xl border-2 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-2.5 ${
+                    scanMode === 'camera'
+                      ? 'border-emerald-600 bg-emerald-50/70 shadow-sm ring-2 ring-emerald-500/20'
+                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
+                  }`}
+                >
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
+                      scanMode === 'camera'
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-600'
+                    }`}
+                  >
+                    <Camera className="w-6 h-6" />
+                  </div>
+                  <span className="text-sm font-bold text-slate-900">
+                    📷 Use Camera
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    Capture live feed
+                  </span>
+                </button>
 
-        {errorMessage && (
-          <div className="mt-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-            <span>{errorMessage}</span>
-          </div>
-        )}
+                <button
+                  type="button"
+                  onClick={() => setScanMode('upload')}
+                  className={`p-5 rounded-2xl border-2 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-2.5 ${
+                    scanMode === 'upload'
+                      ? 'border-emerald-600 bg-emerald-50/70 shadow-sm ring-2 ring-emerald-500/20'
+                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
+                  }`}
+                >
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
+                      scanMode === 'upload'
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-600'
+                    }`}
+                  >
+                    <ImageIcon className="w-6 h-6" />
+                  </div>
+                  <span className="text-sm font-bold text-slate-900">
+                    🖼 Upload Image
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    JPG, PNG, WEBP
+                  </span>
+                </button>
+              </div>
 
-        {/* Loading Progress State */}
-        {isAnalyzing && (
-          <div className="mt-6 p-4 rounded-xl bg-emerald-50/80 border border-emerald-200 space-y-2">
-            <div className="flex items-center justify-between text-xs font-semibold text-emerald-900">
-              <span className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-emerald-600 animate-spin" />
-                Executing Simulated Neural Material Classification...
-              </span>
-              <span>{analysisProgress}%</span>
-            </div>
-            <div className="w-full h-2.5 bg-emerald-200 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-[#166534] transition-all duration-300 rounded-full"
-                style={{ width: `${analysisProgress}%` }}
+              {/* Active Scanner Mode Container */}
+              <Card className="p-6 border border-slate-200 shadow-xs bg-white">
+                {scanMode === 'camera' ? (
+                  <CameraScanner
+                    onCapture={handleCameraCapture}
+                    onSwitchToUpload={() => setScanMode('upload')}
+                    isProcessing={isAnalyzing}
+                  />
+                ) : (
+                  <ImageUploader
+                    onImageSelected={handleImageSelected}
+                    previewUrl={previewUrl}
+                    onClearImage={handleClearImage}
+                    weightKg={approxWeightKg}
+                    onWeightChange={setApproxWeightKg}
+                    onAnalyze={() => runAnalysis()}
+                    isProcessing={isAnalyzing}
+                  />
+                )}
+
+                {/* Preprocessing & Analysis Progress Bar */}
+                {isAnalyzing && (
+                  <div className="mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-emerald-950">
+                      <span className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-emerald-600 animate-spin" />
+                        Preprocessing Image &amp; Consulting Gemini Vision...
+                      </span>
+                      <span>{analysisProgress}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-emerald-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-emerald-600 transition-all duration-300 rounded-full"
+                        style={{ width: `${analysisProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Error Banner */}
+                {errorMessage && (
+                  <div className="mt-4 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                    <ShieldAlert className="w-4 h-4 shrink-0 text-rose-600" />
+                    <span>{errorMessage}</span>
+                  </div>
+                )}
+              </Card>
+
+              {/* Bounded Waste Scope Explainer */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Recycle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>
+                    <strong>Strictly Bounded Scope:</strong> PAPER (Newspaper, Office Paper, Cardboard, Paperboard) &amp; PLASTIC (PET, HDPE, Other).
+                  </span>
+                </div>
+                <span className="text-[11px] text-slate-400">
+                  Secure Server-Side AI Evaluation
+                </span>
+              </div>
+            </>
+          )}
+
+          {/* AI Analysis Result Card (Sections 5-13) */}
+          {analysisResult && !submissionSuccess && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="text-xs font-bold text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Scan Another Item
+                </button>
+              </div>
+
+              <AIAnalysisCard
+                analysis={analysisResult}
+                weightKg={approxWeightKg}
+                onWeightChange={setApproxWeightKg}
+                onRetakeOrTryAgain={handleReset}
+                onSubmitForRecovery={handleSubmitForRecovery}
+                isSubmitting={isSubmitting}
               />
             </div>
-          </div>
-        )}
-
-        {/* Analyze Action Button */}
-        <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-100">
-          <Button
-            size="lg"
-            disabled={!previewUrl || isAnalyzing}
-            isLoading={isAnalyzing}
-            onClick={handleStartAnalysis}
-            rightIcon={<ArrowRight className="w-4 h-4" />}
-          >
-            Analyze Waste
-          </Button>
+          )}
         </div>
-      </Card>
+      )}
     </div>
   );
 };
