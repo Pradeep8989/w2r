@@ -31,7 +31,7 @@ export const ScanWastePage: React.FC = () => {
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('scanner');
-  const [scanMode, setScanMode] = useState<ScanMode>('camera');
+  const [scanMode, setScanMode] = useState<ScanMode>('upload');
 
   // Input State
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -310,6 +310,50 @@ export const ScanWastePage: React.FC = () => {
                   <span className="text-[11px] text-slate-500">
                     JPG, PNG, WEBP
                   </span>
+                </button>
+              </div>
+
+              {/* Quick Sample Test Presets */}
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="font-semibold text-slate-500 flex items-center gap-1.5 mr-1">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                  Quick Test Samples:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setPreviewUrl('/samples/plastic_bottles.jpg');
+                    setErrorMessage(null);
+                    setScanMode('upload');
+                  }}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/50 text-slate-700 font-medium cursor-pointer shadow-2xs transition-colors"
+                >
+                  🥤 Plastic Bottles (PET)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setPreviewUrl('/samples/cardboard.jpg');
+                    setErrorMessage(null);
+                    setScanMode('upload');
+                  }}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/50 text-slate-700 font-medium cursor-pointer shadow-2xs transition-colors"
+                >
+                  📦 Cardboard Box
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setPreviewUrl('/samples/mixed_waste.jpg');
+                    setErrorMessage(null);
+                    setScanMode('upload');
+                  }}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50/50 text-slate-700 font-medium cursor-pointer shadow-2xs transition-colors"
+                >
+                  ⚠️ Mixed / Unclear Waste
                 </button>
               </div>
 

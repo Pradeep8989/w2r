@@ -210,21 +210,31 @@ export const AIAnalysisCard: React.FC<AIAnalysisCardProps> = ({
 
         {/* Content Body */}
         <div className="p-5 sm:p-6 space-y-6">
-          {/* Key Classification Grid */}
+          {/* Key Classification Grid matching Section 18 */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {/* Identified Material */}
+            {/* 1. Material */}
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-              <span className="text-xs font-medium text-slate-500 block mb-1">
-                Material Type
+              <span className="text-xs font-semibold text-slate-500 block mb-1">
+                Material
               </span>
               <span className="text-sm font-bold text-slate-900 capitalize">
                 {selectedMaterial}
               </span>
             </div>
 
-            {/* Contamination Level (Section 8) */}
+            {/* 2. Confidence */}
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-              <span className="text-xs font-medium text-slate-500 block mb-1">
+              <span className="text-xs font-semibold text-slate-500 block mb-1">
+                Confidence
+              </span>
+              <span className="text-sm font-bold text-emerald-700">
+                {confidencePercentage}% ({analysis.confidence})
+              </span>
+            </div>
+
+            {/* 3. Contamination */}
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <span className="text-xs font-semibold text-slate-500 block mb-1">
                 Contamination
               </span>
               <span
@@ -242,24 +252,14 @@ export const AIAnalysisCard: React.FC<AIAnalysisCardProps> = ({
               </span>
             </div>
 
-            {/* Recyclable */}
+            {/* 4. Recyclable */}
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-              <span className="text-xs font-medium text-slate-500 block mb-1">
+              <span className="text-xs font-semibold text-slate-500 block mb-1">
                 Recyclable
               </span>
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Yes
-              </span>
-            </div>
-
-            {/* Points Rate */}
-            <div className="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-200">
-              <span className="text-xs font-medium text-emerald-800 block mb-1">
-                Reward Rate
-              </span>
-              <span className="text-sm font-bold text-emerald-900">
-                {rewardCalculation.pointsPerKg} pts / kg
+              <span className={`inline-flex items-center gap-1 text-xs font-bold ${analysis.recyclable ? 'text-emerald-700' : 'text-rose-600'}`}>
+                {analysis.recyclable ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+                {analysis.recyclable ? 'Yes' : 'No'}
               </span>
             </div>
           </div>
@@ -275,7 +275,7 @@ export const AIAnalysisCard: React.FC<AIAnalysisCardProps> = ({
             </div>
           )}
 
-          {/* Recommended Recovery Route (Section 10) */}
+          {/* 5. Recommended Recovery Route */}
           <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-300">
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-2">
@@ -289,20 +289,20 @@ export const AIAnalysisCard: React.FC<AIAnalysisCardProps> = ({
               </span>
             </div>
             <h4 className="text-base font-bold text-emerald-950">
-              ♻ {recoveryRouteInfo.route}
+              ♻ {analysis.recommended_route || recoveryRouteInfo.route}
             </h4>
             <p className="text-xs text-emerald-800 mt-1">
               {recoveryRouteInfo.routeDescription}
             </p>
           </div>
 
-          {/* Why? Explanation */}
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1">
+          {/* 6. Reason */}
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1">
             <span className="font-bold text-slate-900 flex items-center gap-1.5">
               <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
-              Why this classification?
+              Reason
             </span>
-            <p className="text-slate-600 leading-relaxed">
+            <p className="text-slate-700 leading-relaxed text-sm">
               {analysis.reason}
             </p>
           </div>
